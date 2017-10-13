@@ -59,18 +59,23 @@ type RssFeed struct {
 	Items          []*RssItem
 }
 
+type Cdata struct {
+	XMLName xml.Name `xml:"description"`
+	Text    string   `xml:",cdata"`
+}
+
 type RssItem struct {
-	XMLName     xml.Name `xml:"item"`
-	Title       string   `xml:"title"`       // required
-	Link        string   `xml:"link"`        // required
-	Description string   `xml:"description"` // required
-	Author      string   `xml:"author,omitempty"`
-	Category    string   `xml:"category,omitempty"`
-	Comments    string   `xml:"comments,omitempty"`
-	Enclosure   *RssEnclosure
-	Guid        string `xml:"guid,omitempty"`    // Id used
-	PubDate     string `xml:"pubDate,omitempty"` // created or updated
-	Source      string `xml:"source,omitempty"`
+	XMLName   xml.Name `xml:"item"`
+	Title     string   `xml:"title"` // required
+	Link      string   `xml:"link"`  // required
+	Desc      *Cdata   // required
+	Author    string   `xml:"author,omitempty"`
+	Category  string   `xml:"category,omitempty"`
+	Comments  string   `xml:"comments,omitempty"`
+	Enclosure *RssEnclosure
+	Guid      string `xml:"guid,omitempty"`    // Id used
+	PubDate   string `xml:"pubDate,omitempty"` // created or updated
+	Source    string `xml:"source,omitempty"`
 }
 
 type RssEnclosure struct {
@@ -88,11 +93,11 @@ type Rss struct {
 // create a new RssItem with a generic Item struct's data
 func newRssItem(i *Item) *RssItem {
 	item := &RssItem{
-		Title:       i.Title,
-		Link:        i.Link.Href,
-		Description: i.Description,
-		Guid:        i.Id,
-		PubDate:     anyTimeFormat(time.RFC1123Z, i.Created, i.Updated),
+		Title:   i.Title,
+		Link:    i.Link.Href,
+		Desc:    &Cdata{Text: i.Description},
+		Guid:    i.Id,
+		PubDate: anyTimeFormat(time.RFC1123Z, i.Created, i.Updated),
 	}
 	if i.Source != nil {
 		item.Source = i.Source.Href
